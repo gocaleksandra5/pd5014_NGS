@@ -1,0 +1,38 @@
+1. Instalowanie, tu nie miałam zainstalowane conda wieć musiałam dokonać dodatkowych kroków. 
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh
+source ~/.bashrc
+
+2. Instalacja
+conda --version
+conda install -c bioconda sra-tools
+
+3.Środowisko
+conda create -n SRA_tools -y
+conda activate SRA_tools
+conda install -c bioconda sra-tools -y
+
+4.Sprawdzenie czy działa 
+which fasterq-dump
+fasterq-dump --version
+
+(Tu powstał problem bo pliki nie chiały się pobrać w danym formacje, więc pobrałam je i skopresowałam)
+5. Pobieranie danych
+prefetch SRR25629155
+fasterq-dump SRR25629155 --split-files --gzip
+
+6.Spradzenie czy pliki istnieją
+ls
+
+7.Kopresja do pliku .fastq.gz
+fasterq-dump SRR25629155 --split-files
+gzip SRR25629155_1.fastq
+gzip SRR25629155_2.fastq
+
+#10 pierwszysch 
+zcat SRR25629155_1.fastq.gz | head -n 10
+@SRR25629155.1 MNG003:218:HWFV2DRXY:1:2101:29351:1031 length=251
+
+ID to HWFV2DRXY
+
+nano 1.wynik.txt
