@@ -1,0 +1,22 @@
+#Plik SRR25629155 już miałam więc przeniosłam do pliku Ex3 następnie pobrałam dwa pliki: SRR25629154 i SRR25629153. 
+
+fasterq-dump SRR25629154 --split-files 
+
+gzip SRR25629154_1.fastq
+gzip SRR25629154_2.fastq
+
+fasterq-dump SRR25629153 --split-files 
+
+gzip SRR25629153_1.fastq
+gzip SRR25629153_2.fastq
+
+mkdir Wyniki3 
+
+fastc -t 4 -o Wyniki3/ *.fastq.gz
+
+#Raport multiQC
+multiqc . 
+#znalzało 6 plików
+
+#z multiqc wynika, że SRR25629153_1 występuje najwiekszy procent duplikacji
+
