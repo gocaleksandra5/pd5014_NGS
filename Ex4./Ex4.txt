@@ -1,0 +1,16 @@
+#Instalacja, sprawdzeniłam w jakiej to jest wersji zwykły trimmomatic nie działał więc użyłam java
+
+sudo apt install trimmomatic
+ls /usr/share/java | grep trim
+java -jar /usr/share/java/trimmomatic.jar
+#Zadanie 
+#Do pliku E4 przeniosłam pliki SRR25629155_1 i _2. 
+
+java -jar /usr/share/java/trimmomatic.jar PE -threads 4 -phred33 \SRR25629155_1.fastq.gz SRR25629155_2.fastq.gz \SRR25629155_1_trimmed.fastq.gz /dev/null \SRR25629155_2_trimmed.fastq.gz /dev/null \LEADING:20 TRAILING:20 SLIDINGWINDOW:5:20 MINLEN:50
+
+mkdir Wyniki4
+fastqc -o Wyniki4/ *trimmed*
+
+#Trimming usuną krótkie i niskiej jakości sekwencje odczyty. Zminiejszył liczbę sekwencji i poprawił minimalną długość odczytów 
+
+
