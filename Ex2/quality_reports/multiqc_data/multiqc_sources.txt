@@ -1,0 +1,3 @@
+Module	Section	Sample Name	Source
+FastQC	all_sections	SRR25629155_2	/home/agoc/quality_reports/SRR25629155_2_fastqc.zip
+FastQC	all_sections	SRR25629155_1	/home/agoc/quality_reports/SRR25629155_1_fastqc.zip

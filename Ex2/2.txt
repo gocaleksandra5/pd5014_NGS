@@ -1,0 +1,19 @@
+#1. Aktualizacja 
+sudo apt update
+sudo apt install fastqc
+sudo apt install sra-toolkit
+fastq-dump --split-files SRR25629155
+
+
+#Nowy katalog
+mkdir guality_reports
+
+#Procesowanie 
+fastqc -t 4 -o guality_reports/*.fastq.gz
+cd guality_reports
+
+#Raport multiqc 
+sudo apt install multiqc
+multiqc . 
+
+
