@@ -1,4 +1,4 @@
-#Instalacja musiałam zainstalować 1.13 bo przy 1.17 pojawiał się błąd 
+#Musiałam zainstalować 1.13 bo przy 1.17 pojawiał się błąd 
 #conda install -c conda-forge ncurses=5 -y
 
 #Pzeszłam do odpowiedniego folderu 
@@ -17,7 +17,7 @@
 #du -h Ecoli_rep1.sam   - odp. 582M
 #du -h Ecoli_rep1.sam   - odp. 128M
 
-
+#Skrypt: 
 #!/bin/bash
 
 cd ~/Wyniki/genome_index
@@ -30,7 +30,7 @@ bwa mem ecoli.fasta ~/SRR25629153_1_trimmed.fastq.gz ~/SRR25629153_2_trimmed.fas
 samtools view -Sb rep2.sam > rep2.bam
 samtools view -Sb rep3.sam > rep3.bam
 
-# fixmate (BEZ -m!)
+# fixmate
 samtools fixmate rep2.bam rep2_fixmate.bam
 samtools fixmate rep3.bam rep3_fixmate.bam
 
