@@ -1,0 +1,234 @@
+Projekt 
+
+Temat: Analiza porównawcza genomu szczepu Gronkowca złocistego (Staphylococcus aureus) posiadające oporność na metycylinę (MRSA). 
+
+W  dobie narastającej antybiotyko oporność ważne jest żeby się uważnie przyglądać organizmą, które są czestymi przyczynami chorób zarówno u człowieka jak i zwierzą. 
+
+
+
+Genom referencyjny: Staphylococcus aureus N315
+
+RefSeq: GCF_000009645.1
+https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000009645.1/
+
+Wybrany szczep zawierającym kasetę SCCmec z genem mecA odpowiedzialnym za oporność na antybiotyki β-laktamowe.
+
+
+Badane Próby: 
+
+https://www.ncbi.nlm.nih.gov/sra/SRX32562522[accn] -> https://trace.ncbi.nlm.nih.gov/Traces/?run=SRR37684295
+
+https://www.ncbi.nlm.nih.gov/sra/SRX32562521[accn] -> https://trace.ncbi.nlm.nih.gov/Traces/?run=SRR37684294
+
+https://www.ncbi.nlm.nih.gov/sra/SRX32562519[accn] -> https://trace.ncbi.nlm.nih.gov/Traces/?run=SRR37684292
+
+
+Na wstępnie chciałabym zaznaczyć, że mój komputer, na kótrym pracowałam musiał iść do naprawy na dłuższy czas dlatego używam teraz laptopa z bardzo słabą siłą obliczniową. 
+
+Pobieranie danych powinno się odbywać się: 
+
+#Środowisko 
+conda create -n SRA_tools -y
+conda activate SRA_tools
+conda install -c bioconda sra-tools -y
+
+prefetch SRR37684295
+fasterq-dump SRR37684295 -e 4
+gzip SRR37684295.fastq
+
+prefetch SRR37684294
+fasterq-dump SRR37684294 -e 4  
+gzip SRR37684294.fastq
+
+prefetch SRR37684292
+fasterq-dump SRR37684292 -e 4 
+gzip SRR37684292.fastq
+
+Z informacji na stronie NCBI, są to próby zawirające tylko jendą strone fragmentu DNA dlatego nie ma u mnie _1 i _2.
+
+W terminalu cały czas wiskakiwał mi komunikat: Failed to call external services. Więc pobrałam pliki recznie z bazy. 
+
+
+############################################################################################
+1. Kontrola jakości odczytów
+
+Komendy w terminalu: 
+Wszystkie pobrane powyżej pliki umieśćiłam w folderze o nazwie Projekt, tam również stworzyłam folder guality_reports na raporty 
+
+cd Projekt
+
+mkdir guality_reports
+fastqc -t 4 -o quality_reports/ *.fastq.gz
+
+cd guality_reports
+multiqc . 
+
+Z danych uzyskanych z porównania trzech raportów FastqC dla prób SRR37684295, SRR37684294, SRR37684292:
+- Największą liczbę odczytów ma próba SRR37684294 a najmniejszą SRR37684292
+- we wszystkich próbach pozom procentowy CG wynosi od 34 do 37%
+- wszystkie róby wykazują spadek jakości odczytu na końcach (szczeólnie w SRR37684292)
+
+Raport MultiqC potwierdza danie porówania FastqC.  
+
+#################################################################################################
+
+2. Wycinanie adapterów
+
+Utworzyłam środowisko trim_env na którym miałam trimmomatic: 
+conda activate trim-env
+
+W terminalu: 
+
+trimmomatic SE -phred33 -threads 4 \
+SRR37684292.fastq.gz \
+SRR37684292_noA.fastq.gz \
+ILLUMINACLIP:$CONDA_PREFIX/share/trimmomatic/adapters/TruSeq3-SE.fa:2:30:10
+
+trimmomatic SE -phred33 -threads 4 \
+SRR37684294.fastq.gz \
+SRR37684294_noA.fastq.gz \
+ILLUMINACLIP:$CONDA_PREFIX/share/trimmomatic/adapters/TruSeq3-SE.fa:2:30:10
+
+trimmomatic SE -phred33 -threads 4 \
+SRR37684295.fastq.gz \
+SRR37684295_noA.fastq.gz \
+ILLUMINACLIP:$CONDA_PREFIX/share/trimmomatic/adapters/TruSeq3-SE.fa:2:30:10
+
+W moich badanych próbach nie były obecne adaptery:
+
+TrimmomaticSE: Started with arguments:
+ -phred33 -threads 4 SRR37684295.fastq.gz SRR37684295_noA.fastq.gz ILLUMINACLIP:/home/agoc/miniconda3/envs/trim-env/share/trimmomatic/adapters/TruSeq3-SE.fa:2:30:10
+ILLUMINACLIP: Using adapter file from user-specified absolute path: /home/agoc/miniconda3/envs/trim-env/share/trimmomatic/adapters/TruSeq3-SE.fa
+Using Long Clipping Sequence: 'AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTA'
+Using Long Clipping Sequence: 'AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC'
+ILLUMINACLIP: Using 0 prefix pairs, 2 forward/reverse sequences, 0 forward only sequences, 0 reverse only sequences
+Input Reads: 129336 Surviving: 129336 (100.00%) Dropped: 0 (0.00%)
+TrimmomaticSE: Completed successfully
+
+
+#########################################################################################
+
+3. Przycinanie sekwencji 
+
+
+W terminalu dla próby np. SRR37684292: 
+
+trimmomatic SE -phred33 -threads 4 \
+SRR37684292_noA.fastq.gz \
+SRR37684292_trimmed.fastq.gz \
+LEADING:20 TRAILING:20 SLIDINGWINDOW:5:20 MINLEN:50
+
+Bash w pliku (którym też załączam): 
+
+#!/bin/bash
+
+
+trimmomatic SE -phred33 -threads 4 \
+SRR37684292_noA.fastq.gz \
+SRR37684292_trimmed.fastq.gz \
+LEADING:20 TRAILING:20 SLIDINGWINDOW:5:20 MINLEN:50
+done 
+
+Wynik:
+SRR37684294 - Input Reads: 285284 Surviving: 40243 (14.11%) Dropped: 245041 (85.89%)
+SRR37684295 - Input Reads: 129336 Surviving: 52270 (40.41%) Dropped: 77066 (59.59%)
+SRR37684292 - Input Reads: 87601 Surviving: 20993 (23.96%) Dropped: 66608 (76.04%)
+
+Raporty FastqC i MultiqC po usuwaniu: 
+
+fastqc -o quality_reports/ *trimmed*
+multiqc .
+
+################################################
+
+
+
+4. Mapowanie sekwencji
+
+Genom referencyjny:
+https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000009645.1/
+ 
+Pobrany plik: 
+GCA_000009645.1_ASM964v1_genomic.fna.gz
+
+Indeksowanie genu w BWA: 
+Pobrany plik z genem referencyjnym umieściłam w pliku genome_index
+
+bwa index -p staph_index GCA_000009645.1_ASM964v1_genomic.fna.gz
+
+Tworzenie pliku indeksu fai do fenu referencyjnego:
+
+samtools faidx GCA_000009645.1_ASM964v1_genomic.fna
+
+
+Mapowanie: 
+
+Poniżej przedstawiłam etapy w terminalu 
+
+SRR37684295_trimmed.fastq.gz > Staph_rep95.sam
+samtools view -bS Staph_rep95.sam > Staph_rep95.bam
+samtools sort Staph_rep95.bam -o Staph_rep95_sorted.bam
+samtools index Staph_rep95_sorted.bam
+samtools fixmate -m Staph_rep95.bam Staph_rep95_fixmate.bam
+samtools sort Staph_rep95_fixmate.bam -o Staph_rep95_fixmate_sorted.bam
+samtools index Staph_rep95_fixmate_sorted.bam
+samtools markdup -r Staph_rep95_fixmate_sorted.bam Staph_rep95_fixmate_sorted_dedup.bam
+
+Statystyki: 
+samtools flagstat Staph_rep94_fixmate_sorted_dedup.bam
+samtools coverage Staph_rep94_fixmate_sorted_dedup.bam
+samtools stats Staph_rep94_fixmate_sorted_dedup.bam
+
+
+###############################################################################################
+
+Pokrycje: 
+
+samtools coverage Staph_rep94_fixmate_sorted_dedup.bam
+#rname	startpos	endpos	numreads	covbases	coverage	meandepth	meanbaseq	meanmapq
+BA000018.3	1	2814816	12495	1074378	38.1687	0.4969	37.5	59.1
+AP003139.1	1	24653	10	864	3.50464	0.0414148	35.9	60
+
+
+samtools coverage Staph_rep95_fixmate_sorted_dedup.bam
+#rname	startpos	endpos	numreads	covbases	coverage	meandepth	meanbaseq	meanmapq
+BA000018.3	1	2814816	27858	1783013	63.3439	1.07595	37.5	59
+AP003139.1	1	24653	482	9430	38.2509	2.02357	37.8	56.5
+
+
+samtools coverage Staph_rep92_fixmate_sorted_dedup.bam
+#rname	startpos	endpos	numreads	covbases	coverage	meandepth	meanbaseq	meanmapq
+BA000018.3	1	2814816	12495	1074378	38.1687	0.4969	37.5	59.1
+AP003139.1	1	24653	10	864	3.50464	0.0414148	35.9	60
+
+
+Wyjaśnienie: 
+
+Dwa elementy referencji:
+BA000018.3 – główny chromosom bakterii (ok. 2.8 Mb) oraz AP003139.1
+
+
+Rep94 i 92 mają identyczne wyniki dla pokrycja chromosomu ok. 38% co oznacza niską małą liczbę odczytów. w przypadku AP003139.1 jest to jeszcze mniej bo 3,5%
+Jedynie 95 ma 63% pokrycja z chromosomem a z AP003139.1 to 39%. 
+Natomiast Meanmapq świadczy o dobrym dopasowaniu bo jest na poziomie 60%
+
+
+5. Wizualizacja
+
+igv_hidpi
+
+bwa mem -t 4 genome_index/staph_index \
+SRR37684294_trimmed.fastq.gz > Staph_rep94.sam
+
+
+Zdjęcie 1
+Układ pokrycia i rozmieszczenie odczytów są bardzo podobne w trzech, wskazuje to na dobrą powtarzalność eksperymentu.
+Wszystkie trzy próbki mają brak pokrycia w tym samym miejscu, wskazuje to na delecję w badanym szczepie względem referencji, albo artefakt referencji.
+
+Na dalszej szerokości odczytu u wszystkich trzech prób  
+
+Zdjęcie 2
+
+Na zjęciu zamieściłam porównanie regionu szarego (po lewej) i regionu białego (po prawej), widać na zdjęciu różnice w MapQ z pola szarego jakość jest wysoka i wynosi 60 co świadczy o unikalnym dopasowaniu sekwencji próbki do genomu referencyjnego. Natomiast z pola białego MapQ wynosi 0 co wskazuje wielokrotne dopasowaniu lub niską jakość odczytu.
+
+
