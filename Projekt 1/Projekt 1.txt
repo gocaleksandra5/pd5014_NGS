@@ -4,8 +4,6 @@ Temat: Analiza porównawcza genomu szczepu Gronkowca złocistego (Staphylococcus
 
 W  dobie narastającej antybiotyko oporność ważne jest żeby się uważnie przyglądać organizmą, które są czestymi przyczynami chorób zarówno u człowieka jak i zwierzą. 
 
-
-
 Genom referencyjny: Staphylococcus aureus N315
 
 RefSeq: GCF_000009645.1
@@ -17,11 +15,8 @@ Wybrany szczep zawierającym kasetę SCCmec z genem mecA odpowiedzialnym za opor
 Badane Próby: 
 
 https://www.ncbi.nlm.nih.gov/sra/SRX32562522[accn] -> https://trace.ncbi.nlm.nih.gov/Traces/?run=SRR37684295
-
 https://www.ncbi.nlm.nih.gov/sra/SRX32562521[accn] -> https://trace.ncbi.nlm.nih.gov/Traces/?run=SRR37684294
-
 https://www.ncbi.nlm.nih.gov/sra/SRX32562519[accn] -> https://trace.ncbi.nlm.nih.gov/Traces/?run=SRR37684292
-
 
 Pobieranie danych powinno się odbywać: 
 
@@ -132,13 +127,13 @@ Raporty FastqC i MultiqC po usuwaniu:
 fastqc -o quality_reports/ *trimmed*
 multiqc .
 
-SRR37684295:
 Po procesie przycinania odczytów z raportów wygenerowanych w htlm zaobserowano znaczną poprawę jakości sekwencji. Liczba odczytów zmniejszyła (SRR37684295 -> z 129 336 do 52 27
 SRR37684294 -> z 285 284 do 40 243
 SRR37684292 -> z 87 601 do 20 993) 
 Jakość odczytu również uległa zmianie i znacząco się poprawiła do Q35-40. Natomiast Zawartość GC nie zmieniła się znacząco co oznacza, że nadal pozostaje zgodny z genomem Gronkowca. 
 
-
+Z analizy MultiQC wynika:
+Że zawartość CG pozostaje na stabilnym poziomie około 34 -38% 
 
 4. Mapowanie sekwencji
 
@@ -150,17 +145,14 @@ GCA_000009645.1_ASM964v1_genomic.fna.gz
 
 Indeksowanie genu w BWA: 
 Pobrany plik z genem referencyjnym umieściłam w pliku genome_index
-
 bwa index -p staph_index GCA_000009645.1_ASM964v1_genomic.fna.gz
 
 Tworzenie pliku indeksu fai do fenu referencyjnego:
-
 samtools faidx GCA_000009645.1_ASM964v1_genomic.fna
-
 
 Mapowanie: 
 
-Poniżej przedstawiłam etapy w terminalu 
+Poniżej przedstawiłam etapy w terminalu dla SRR37684295, pozostałe dwie próby wykonywałąm analogicznie: 
 
 SRR37684295_trimmed.fastq.gz > Staph_rep95.sam
 samtools view -bS Staph_rep95.sam > Staph_rep95.bam
@@ -175,9 +167,6 @@ Statystyki:
 samtools flagstat Staph_rep94_fixmate_sorted_dedup.bam
 samtools coverage Staph_rep94_fixmate_sorted_dedup.bam
 samtools stats Staph_rep94_fixmate_sorted_dedup.bam
-
-
-###############################################################################################
 
 Pokrycje: 
 
@@ -199,11 +188,10 @@ BA000018.3	1	2814816	12495	1074378	38.1687	0.4969	37.5	59.1
 AP003139.1	1	24653	10	864	3.50464	0.0414148	35.9	60
 
 
-Wyjaśnienie: 
+Wnioski: 
 
 Dwa elementy referencji:
 BA000018.3 – główny chromosom bakterii (ok. 2.8 Mb) oraz AP003139.1
-
 
 Rep94 i 92 mają identyczne wyniki dla pokrycja chromosomu ok. 38% co oznacza niską małą liczbę odczytów. w przypadku AP003139.1 jest to jeszcze mniej bo 3,5%
 Jedynie 95 ma 63% pokrycja z chromosomem a z AP003139.1 to 39%. 
@@ -213,7 +201,6 @@ Natomiast Meanmapq świadczy o dobrym dopasowaniu bo jest na poziomie 60%
 5. Wizualizacja
 
 igv_hidpi
-
 bwa mem -t 4 genome_index/staph_index \
 SRR37684294_trimmed.fastq.gz > Staph_rep94.sam
 
@@ -227,5 +214,26 @@ Na dalszej szerokości odczytu u wszystkich trzech prób
 Zdjęcie 2
 
 Na zjęciu zamieściłam porównanie regionu szarego (po lewej) i regionu białego (po prawej), widać na zdjęciu różnice w MapQ z pola szarego jakość jest wysoka i wynosi 60 co świadczy o unikalnym dopasowaniu sekwencji próbki do genomu referencyjnego. Natomiast z pola białego MapQ wynosi 0 co wskazuje wielokrotne dopasowaniu lub niską jakość odczytu.
+
+
+6. Oznaczanie i usuwanie duplikatów
+
+usunięciem duplikatów zajełam się już w punkcje 4 w trakcje mapowania, poniżej zamieszam komendy jeszcze raz. 
+
+samtools index Staph_rep95_fixmate_sorted.bam
+samtools markdup -r Staph_rep95_fixmate_sorted.bam Staph_rep95_fixmate_sorted_dedup.bam
+
+7.  Analiza wariantów
+
+bcftools mpileup -f genome_index/GCA_000009645.1_ASM964v1_genomic.fna \
+Staph_rep95_fixmate_sorted_dedup.bam | bcftools call -mv -Ov -o variants.vcf
+
+bcftools stats variants.vcf
+
+
+
+
+
+
 
 
