@@ -23,9 +23,7 @@ https://www.ncbi.nlm.nih.gov/sra/SRX32562521[accn] -> https://trace.ncbi.nlm.nih
 https://www.ncbi.nlm.nih.gov/sra/SRX32562519[accn] -> https://trace.ncbi.nlm.nih.gov/Traces/?run=SRR37684292
 
 
-Na wstępnie chciałabym zaznaczyć, że mój komputer, na kótrym pracowałam musiał iść do naprawy na dłuższy czas dlatego używam teraz laptopa z bardzo słabą siłą obliczniową. 
-
-Pobieranie danych powinno się odbywać się: 
+Pobieranie danych powinno się odbywać: 
 
 #Środowisko 
 conda create -n SRA_tools -y
@@ -49,7 +47,7 @@ Z informacji na stronie NCBI, są to próby zawirające tylko jendą strone frag
 W terminalu cały czas wiskakiwał mi komunikat: Failed to call external services. Więc pobrałam pliki recznie z bazy. 
 
 
-############################################################################################
+
 1. Kontrola jakości odczytów
 
 Komendy w terminalu: 
@@ -70,7 +68,6 @@ Z danych uzyskanych z porównania trzech raportów FastqC dla prób SRR37684295,
 
 Raport MultiqC potwierdza danie porówania FastqC.  
 
-#################################################################################################
 
 2. Wycinanie adapterów
 
@@ -106,10 +103,7 @@ Input Reads: 129336 Surviving: 129336 (100.00%) Dropped: 0 (0.00%)
 TrimmomaticSE: Completed successfully
 
 
-#########################################################################################
-
 3. Przycinanie sekwencji 
-
 
 W terminalu dla próby np. SRR37684292: 
 
@@ -121,7 +115,6 @@ LEADING:20 TRAILING:20 SLIDINGWINDOW:5:20 MINLEN:50
 Bash w pliku (którym też załączam): 
 
 #!/bin/bash
-
 
 trimmomatic SE -phred33 -threads 4 \
 SRR37684292_noA.fastq.gz \
@@ -139,7 +132,11 @@ Raporty FastqC i MultiqC po usuwaniu:
 fastqc -o quality_reports/ *trimmed*
 multiqc .
 
-################################################
+SRR37684295:
+Po procesie przycinania odczytów z raportów wygenerowanych w htlm zaobserowano znaczną poprawę jakości sekwencji. Liczba odczytów zmniejszyła (SRR37684295 -> z 129 336 do 52 27
+SRR37684294 -> z 285 284 do 40 243
+SRR37684292 -> z 87 601 do 20 993) 
+Jakość odczytu również uległa zmianie i znacząco się poprawiła do Q35-40. Natomiast Zawartość GC nie zmieniła się znacząco co oznacza, że nadal pozostaje zgodny z genomem Gronkowca. 
 
 
 
