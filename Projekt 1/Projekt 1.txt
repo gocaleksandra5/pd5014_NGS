@@ -236,17 +236,22 @@ SRR37684295
 - liczba wariantów 1264
 w tym : - SNPs: 1218, indels: 46, MNPs: 0
 - ts/tv = 1.88 jakość danych 
+-delecie + 36
+-insercje = 12
 
 SRR37684294
 - liczba wariantów 513
 w tym : - SNPs: 502, indels: 11, MNPs: 0
 - ts/tv = 1.92 jakość danych 
+-delecj = 7
+-insercje = 11
 
 SRR37684292
 - liczba wariantów 1264
 w tym : - SNPs: 513, indels: 11, MNPs: 0
 - ts/tv = 1.92 jakość danych 
-
+-delecje = 7
+-insercje = 12
 
 
 
