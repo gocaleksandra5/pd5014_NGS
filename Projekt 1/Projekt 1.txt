@@ -225,11 +225,27 @@ samtools markdup -r Staph_rep95_fixmate_sorted.bam Staph_rep95_fixmate_sorted_de
 
 7.  Analiza wariantów
 
+Identyfikacja wariantów: 
 bcftools mpileup -f genome_index/GCA_000009645.1_ASM964v1_genomic.fna \
-Staph_rep95_fixmate_sorted_dedup.bam | bcftools call -mv -Ov -o variants.vcf
+Staph_rep95_fixmate_sorted_dedup.bam | bcftools call -mv -Ov -o rep95variants.vcf
 
-bcftools stats variants.vcf
+Format wyjściowy: 
+bcftools stats 95variants.vcf
 
+SRR37684295
+- liczba wariantów 1264
+w tym : - SNPs: 1218, indels: 46, MNPs: 0
+- ts/tv = 1.88 jakość danych 
+
+SRR37684294
+- liczba wariantów 513
+w tym : - SNPs: 502, indels: 11, MNPs: 0
+- ts/tv = 1.92 jakość danych 
+
+SRR37684292
+- liczba wariantów 1264
+w tym : - SNPs: 513, indels: 11, MNPs: 0
+- ts/tv = 1.92 jakość danych 
 
 
 
